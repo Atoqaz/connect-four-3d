@@ -129,24 +129,23 @@ class ConnectFour3D:
                 return True
         return False
 
-    def play(self, players: List[Player], display: bool = False):
+    def play(self, players: List[Player], display: bool = False) -> int:
         self.players = players
         self._create_board()
 
         turn = 0
 
-        while True:
+        while True:  # Game is running
             player = players[turn]
 
             available_slots = self.get_available_slots(board=self.board)
             if available_slots:
 
-                place_in_slot = -1
-                while place_in_slot == -1:
+                while True:  # Get correct input
                     if player.function == None:
                         try:
                             print(
-                                f"Turn = Player: {player.name}\nPieces: {player.piece_value}"
+                                f"Turn = Player: {player.name}\nPiece: {player.piece_value}"
                             )
                             place_in_slot = int(
                                 input(
@@ -155,14 +154,17 @@ class ConnectFour3D:
                             )
                         except ValueError:
                             continue
-                        except TypeError:
-                            continue
                     else:
                         place_in_slot = player.function(
                             board=self.board, available_slots=available_slots,
                         )
+
                     if place_in_slot in available_slots:
                         break
+                    else:
+                        print("*" * 50)
+                        print("Incorrect input")
+                        print("*" * 50)
 
                 self.board = self.make_move(
                     board=self.board, player=player, piece_placement=place_in_slot
@@ -174,13 +176,13 @@ class ConnectFour3D:
                 if self._detect_win(board=self.board):
                     if display:
                         print(f"Game won by player: {player.name}")
-                    break
+                    return player
 
                 turn = (turn + 1) % len(players)  # Next player in turn
             else:
                 if display:
                     print("Game tied!")
-                break
+                return None
 
 
 CF = ConnectFour3D()
