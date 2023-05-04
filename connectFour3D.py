@@ -130,7 +130,6 @@ class ConnectFour3D:
         return False
 
     def play(self, players: List[Player], display: bool = False) -> int:
-        self.players = players
         self._create_board()
 
         turn = 0
@@ -185,4 +184,4 @@ class ConnectFour3D:
                 return None
 
 
-CF = ConnectFour3D()
+# CF = ConnectFour3D()
