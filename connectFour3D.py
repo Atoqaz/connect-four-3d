@@ -54,7 +54,7 @@ class ConnectFour3D:
     def make_move(
         self, board: np.array, player: Player, piece_placement: int
     ) -> np.array:
-        available_slots = self.get_available_slots(board=self.board)
+        available_slots = self.get_available_slots(board=board)
         if piece_placement not in available_slots:
             raise ValueError(
                 f"The selected piece placement is not available. Chosen placement: {piece_placement}.\nAvailable: {available_slots}"
@@ -129,6 +129,67 @@ class ConnectFour3D:
                 return True
         return False
 
+    def start_game(self):
+        self._create_board()
+        self.turn = 0
+
+    def reward(self, board: np.array, piece_placement: int):
+        return 1
+
+    def make_move_step(self, piece_placement, players, display=False):
+
+        available_slots = self.get_available_slots(board=self.board)
+
+        if available_slots:
+            player = players[self.turn]
+            if piece_placement in available_slots:
+                # Move for AI
+                self.board = self.make_move(
+                    board=self.board, player=player, piece_placement=piece_placement
+                )
+                if self._detect_win(board=self.board):
+                    if display:
+                        print(f"Game won by player: {player.name}")
+                    return (
+                        self.board,
+                        64,
+                        True,
+                        None,
+                    )  # (observation, reward, done, info) AI won
+                self.turn = (self.turn + 1) % 2  # Next player in turn
+
+                # Move for opponent
+                player = players[self.turn]
+                piece_placement = player.function(
+                    board=self.board, available_slots=available_slots,
+                )
+                self.board = self.make_move(
+                    board=self.board, player=player, piece_placement=piece_placement
+                )
+                if self._detect_win(board=self.board):
+                    if display:
+                        print(f"Game won by player: {player.name}")
+                    return (
+                        self.board,
+                        -64,
+                        True,
+                        None,
+                    )  # (observation, reward, done, info) Opponent won
+                self.turn = (self.turn + 1) % 2  # Next player in turn
+
+                reward = self.reward(self.board, piece_placement)
+                return (
+                    self.board,
+                    reward,
+                    False,
+                    None,
+                )  # (observation, reward, done, info) Opponent won
+
+            else:  # Not a valid move
+                return self.board, -1, 0, None
+        else:  # Game tied
+            return self.board, 1, 1, None  # "Tied"
+
     def play(self, players: List[Player], display: bool = False) -> int:
         self._create_board()
 
@@ -146,7 +207,7 @@ class ConnectFour3D:
                             print(
                                 f"Turn = Player: {player.name}\nPiece: {player.piece_value}"
                             )
-                            place_in_slot = int(
+                            piece_placement = int(
                                 input(
                                     f"Select slot for the piece:\n{self._show_board_places(available_slots)}: "
                                 )
@@ -154,11 +215,11 @@ class ConnectFour3D:
                         except ValueError:
                             continue
                     else:
-                        place_in_slot = player.function(
+                        piece_placement = player.function(
                             board=self.board, available_slots=available_slots,
                         )
 
-                    if place_in_slot in available_slots:
+                    if piece_placement in available_slots:
                         break
                     else:
                         print("*" * 50)
@@ -166,7 +227,7 @@ class ConnectFour3D:
                         print("*" * 50)
 
                 self.board = self.make_move(
-                    board=self.board, player=player, piece_placement=place_in_slot
+                    board=self.board, player=player, piece_placement=piece_placement
                 )
 
                 if display:
@@ -183,5 +244,3 @@ class ConnectFour3D:
                     print("Game tied!")
                 return None
 
-
-# CF = ConnectFour3D()

@@ -1,6 +1,6 @@
 from connectFour3D import ConnectFour3D, Player
 from player_functions import *
-from typing import Tuple
+from typing import Tuple, Dict
 import os
 
 from stable_baselines3 import PPO
@@ -8,11 +8,14 @@ from stable_baselines3.common.callbacks import BaseCallback
 import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
+# import torch as th
+import torch
+import torchvision
 
 
+CHECKPOINT_DIR = "./train/"
+LOG_DIR = "./logs/"
 
-CHECKPOINT_DIR = './train/'
-LOG_DIR = './logs/'
 
 class TrainAndLoggingCallback(BaseCallback):
     def __init__(self, check_freq, save_path, verbose=1):
@@ -50,19 +53,25 @@ class ConnectFour3DEnv(gym.Env):
 
     def __init__(self, connect_four, players):
         super().__init__()
-        self.action_space = spaces.Box(low=0, high=15) # np.array(range(16)) This should possible change per turn
-        self.observation_space = spaces.Box(low=0, high=2,
-                                            shape=(4, 4, 4), dtype=np.uint8)
+        self.action_space = spaces.Box(
+            low=0, high=15
+        )  # np.array(range(16)) This should possible change per turn
+        self.observation_space = spaces.Box(
+            low=0, high=2, shape=(4, 4, 4), dtype=np.uint8
+        )
         self.connect_four = connect_four
         self.players = players
-        self.connect_four.play(players=players)
+        self.connect_four.start_game()
+        # self.connect_four.play(players=players)
 
-    def step(self, action): # -> Tuple[step, reward, done, info]:
-        ...
+    def step(self, action) -> Tuple[np.array, int, bool, Dict[str, str]]:
+        observation, reward, done, info = self.connect_four.make_move_step(
+            action, self.players
+        )
         return observation, reward, done, info
 
     def reset(self):
-        self.connect_four.__init__()
+        self.connect_four.start_game()
         observation = self.connect_four.board
         return observation
 
@@ -73,7 +82,6 @@ class ConnectFour3DEnv(gym.Env):
         ...
 
 
-
 if __name__ == "__main__":
     players = [
         Player(name="A", function=place_random, piece_value=1),
@@ -82,8 +90,14 @@ if __name__ == "__main__":
 
     connect_four = ConnectFour3D()
     # connect_four.play(players=players, display=True)
-    env = ConnectFour3DEnv(connect_four, players) # TODO create
+    env = ConnectFour3DEnv(connect_four, players)  # TODO create
     callback = TrainAndLoggingCallback(check_freq=10_000, save_path=CHECKPOINT_DIR)
-    model = PPO(policy='MlpPolicy', env=env, verbose=1, tensorboard_log=LOG_DIR, learning_rate=0.000001, n_steps=512)
-    model.learn(total_timesteps=10, callback=callback) # 1_000_000
-    
+    model = PPO(
+        policy="MlpPolicy",
+        env=env,
+        verbose=1,
+        tensorboard_log=LOG_DIR,
+        learning_rate=0.000001,
+        n_steps=512,
+    )
+    model.learn(total_timesteps=10, callback=callback)  # 1_000_000

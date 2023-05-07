@@ -8,3 +8,4 @@ def place_random(board: np.array, available_slots: List[int]):
 
 def place_minimum(board: np.array, available_slots: List[int]):
     return min(available_slots)
+
