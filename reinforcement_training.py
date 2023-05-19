@@ -1,16 +1,18 @@
+# %%
 from connectFour3D import ConnectFour3D, Player
 from player_functions import *
 from typing import Tuple, Dict
 import os
 
+import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback
 import gymnasium as gym
-import numpy as np
-from gymnasium import spaces
+
+from gym.spaces.discrete import Discrete
+from gym.spaces import Box
+
 # import torch as th
-import torch
-import torchvision
 
 
 CHECKPOINT_DIR = "./train/"
@@ -34,35 +36,21 @@ class TrainAndLoggingCallback(BaseCallback):
         return True
 
 
-# class Env:
-#     def __init__(self):
-#         ...
-
-#     def step() -> Tuple[step, reward, done, info]:
-#         # Step = place piece,
-#         # reward = reward function for each step,
-#         # done == Game over, done,
-#         # info = dict (State of game, player turn, pieces placed, etc.)
-#         ...
-
-
 class ConnectFour3DEnv(gym.Env):
     """Custom Environment that follows gym interface."""
 
     metadata = {"render.modes": ["human"]}
 
-    def __init__(self, connect_four, players):
+    def __init__(self, players):
         super().__init__()
-        self.action_space = spaces.Box(
-            low=0, high=15
-        )  # np.array(range(16)) This should possible change per turn
-        self.observation_space = spaces.Box(
-            low=0, high=2, shape=(4, 4, 4), dtype=np.uint8
+        self.action_space = Discrete(
+            16
         )
-        self.connect_four = connect_four
+        print(f"self.action_space: {type(self.action_space)}")
+        self.observation_space = Box(low=0, high=2, shape=(4, 4, 4))  # , dtype=np.uint8
+        self.connect_four = ConnectFour3D()
         self.players = players
         self.connect_four.start_game()
-        # self.connect_four.play(players=players)
 
     def step(self, action) -> Tuple[np.array, int, bool, Dict[str, str]]:
         observation, reward, done, info = self.connect_four.make_move_step(
@@ -76,7 +64,7 @@ class ConnectFour3DEnv(gym.Env):
         return observation
 
     def render(self):
-        ...
+        print(self.connect_four.board)
 
     def close(self):
         ...
@@ -84,20 +72,22 @@ class ConnectFour3DEnv(gym.Env):
 
 if __name__ == "__main__":
     players = [
-        Player(name="A", function=place_random, piece_value=1),
+        Player(name="A", function=None, piece_value=1),
         Player(name="B", function=place_random, piece_value=2),
     ]
 
-    connect_four = ConnectFour3D()
-    # connect_four.play(players=players, display=True)
-    env = ConnectFour3DEnv(connect_four, players)  # TODO create
+    env = ConnectFour3DEnv(players)
     callback = TrainAndLoggingCallback(check_freq=10_000, save_path=CHECKPOINT_DIR)
     model = PPO(
         policy="MlpPolicy",
         env=env,
-        verbose=1,
+        verbose=2,
         tensorboard_log=LOG_DIR,
         learning_rate=0.000001,
         n_steps=512,
     )
-    model.learn(total_timesteps=10, callback=callback)  # 1_000_000
+    # model.to("cuda")
+    model.learn(total_timesteps=100_000, callback=callback)  # 1_000_000
+
+
+# %%

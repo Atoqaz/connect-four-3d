@@ -34,13 +34,15 @@ def make_statistics(players, n_plays):
 
 if __name__ == "__main__":
     players = [
-        Player(name="A", function=place_random, piece_value=1),
-        Player(name="B", function=place_random, piece_value=2),
+        Player(name="A", function=rl_model, piece_value=1),
+        Player(name="B", function=None, piece_value=2),
     ]
 
-    # connect_four = ConnectFour3D()
-    # connect_four.play(players=players, display=True)
-    make_statistics(players, n_plays=100_000)
+    connect_four = ConnectFour3D()
+    connect_four.play(players=players, display=True)
+
+
+    # make_statistics(players, n_plays=100_000)
     # measure_time(players, N=162_000)
 
     # print(players[0].function.__name__)

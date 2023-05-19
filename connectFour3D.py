@@ -11,10 +11,11 @@ Display board
 
 """
 
-#%%
+# %%
 import numpy as np
-from typing import Tuple, List
+from typing import List
 from dataclasses import dataclass
+import os
 
 
 @dataclass()
@@ -28,8 +29,7 @@ class Player:
 
 
 class ConnectFour3D:
-    """Players: 2 players with values 1 & 2. 0 is empty slot.
-    """
+    """Players: 2 players with values 1 & 2. 0 is empty slot."""
 
     def __init__(self):
         self.board = self._create_board()
@@ -137,7 +137,6 @@ class ConnectFour3D:
         return 1
 
     def make_move_step(self, piece_placement, players, display=False):
-
         available_slots = self.get_available_slots(board=self.board)
 
         if available_slots:
@@ -154,14 +153,15 @@ class ConnectFour3D:
                         self.board,
                         64,
                         True,
-                        None,
+                        {},
                     )  # (observation, reward, done, info) AI won
                 self.turn = (self.turn + 1) % 2  # Next player in turn
 
                 # Move for opponent
                 player = players[self.turn]
                 piece_placement = player.function(
-                    board=self.board, available_slots=available_slots,
+                    board=self.board,
+                    available_slots=available_slots,
                 )
                 self.board = self.make_move(
                     board=self.board, player=player, piece_placement=piece_placement
@@ -173,7 +173,7 @@ class ConnectFour3D:
                         self.board,
                         -64,
                         True,
-                        None,
+                        {},
                     )  # (observation, reward, done, info) Opponent won
                 self.turn = (self.turn + 1) % 2  # Next player in turn
 
@@ -182,13 +182,13 @@ class ConnectFour3D:
                     self.board,
                     reward,
                     False,
-                    None,
+                    {},
                 )  # (observation, reward, done, info) Opponent won
 
             else:  # Not a valid move
-                return self.board, -1, 0, None
+                return self.board, -1, 0, {}
         else:  # Game tied
-            return self.board, 1, 1, None  # "Tied"
+            return self.board, 1, 1, {}  # "Tied"
 
     def play(self, players: List[Player], display: bool = False) -> int:
         self._create_board()
@@ -200,7 +200,6 @@ class ConnectFour3D:
 
             available_slots = self.get_available_slots(board=self.board)
             if available_slots:
-
                 while True:  # Get correct input
                     if player.function == None:
                         try:
@@ -216,7 +215,8 @@ class ConnectFour3D:
                             continue
                     else:
                         piece_placement = player.function(
-                            board=self.board, available_slots=available_slots,
+                            board=self.board,
+                            available_slots=available_slots,
                         )
 
                     if piece_placement in available_slots:
@@ -231,6 +231,7 @@ class ConnectFour3D:
                 )
 
                 if display:
+                    os.system('cls')
                     print(self.board)
 
                 if self._detect_win(board=self.board):
@@ -243,4 +244,3 @@ class ConnectFour3D:
                 if display:
                     print("Game tied!")
                 return None
-

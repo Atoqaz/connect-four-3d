@@ -1,1 +1,5 @@
+env\Scripts\activate
 
+python reinforcement_training.py
+
+tensorboard --logdir=\logs\PPO_1

@@ -5,3 +5,4 @@ torchaudio == 0.13.1
 stable-baselines3 == 1.8.0
 gymnasium == 0.28.1
 torch == 1.13.1
+tensorboard == 2.11.2
