@@ -129,67 +129,6 @@ class ConnectFour3D:
                 return True
         return False
 
-    def start_game(self):
-        self._create_board()
-        self.turn = 0
-
-    def reward(self, board: np.array, piece_placement: int):
-        return 1
-
-    def make_move_step(self, piece_placement, players, display=False):
-        available_slots = self.get_available_slots(board=self.board)
-
-        if available_slots:
-            player = players[self.turn]
-            if piece_placement in available_slots:
-                # Move for AI
-                self.board = self.make_move(
-                    board=self.board, player=player, piece_placement=piece_placement
-                )
-                if self._detect_win(board=self.board):
-                    if display:
-                        print(f"Game won by player: {player.name}")
-                    return (
-                        self.board,
-                        64,
-                        True,
-                        {},
-                    )  # (observation, reward, done, info) AI won
-                self.turn = (self.turn + 1) % 2  # Next player in turn
-
-                # Move for opponent
-                player = players[self.turn]
-                piece_placement = player.function(
-                    board=self.board,
-                    available_slots=available_slots,
-                )
-                self.board = self.make_move(
-                    board=self.board, player=player, piece_placement=piece_placement
-                )
-                if self._detect_win(board=self.board):
-                    if display:
-                        print(f"Game won by player: {player.name}")
-                    return (
-                        self.board,
-                        -64,
-                        True,
-                        {},
-                    )  # (observation, reward, done, info) Opponent won
-                self.turn = (self.turn + 1) % 2  # Next player in turn
-
-                reward = self.reward(self.board, piece_placement)
-                return (
-                    self.board,
-                    reward,
-                    False,
-                    {},
-                )  # (observation, reward, done, info) Opponent won
-
-            else:  # Not a valid move
-                return self.board, -1, 0, {}
-        else:  # Game tied
-            return self.board, 1, 1, {}  # "Tied"
-
     def play(self, players: List[Player], display: bool = False) -> int:
         self._create_board()
 
@@ -231,7 +170,7 @@ class ConnectFour3D:
                 )
 
                 if display:
-                    os.system('cls')
+                    os.system("cls")
                     print(self.board)
 
                 if self._detect_win(board=self.board):

@@ -3,3 +3,11 @@ env\Scripts\activate
 python reinforcement_training.py
 
 tensorboard --logdir=\logs\PPO_1
+
+
+-----------
+
+Make reward function based on each move
+
+Make RL compete against itself
+Make training files list from 0 to inf

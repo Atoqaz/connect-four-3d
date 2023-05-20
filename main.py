@@ -34,7 +34,7 @@ def make_statistics(players, n_plays):
 
 if __name__ == "__main__":
     players = [
-        Player(name="A", function=rl_model, piece_value=1),
+        Player(name="A", function=rl_model_highest, piece_value=1),
         Player(name="B", function=None, piece_value=2),
     ]
 
