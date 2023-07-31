@@ -215,7 +215,7 @@ class ConnectFour3DEnv(gym.Env):
 
     def step(self, action) -> Tuple[np.array, int, bool, Dict[str, str]]:
         observation, reward, done, info = self.connect_four.make_move_step(
-            piece_placement=action, players=self.players
+            piece_placement=int(action), players=self.players
         )
         return observation, reward, done, info
 
@@ -232,27 +232,25 @@ class ConnectFour3DEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    check_freq = 10_000
-    steps = 100_000
-    epocs = 5
-    for _ in range(epocs):
-        players = [
-            Player(name="A", function=None, piece_value=1),  # RL model
-            Player(name="B", function=rl_model_highest, piece_value=2),
-        ]
-        env = ConnectFour3DEnv(players)
-        callback = TrainAndLoggingCallback(
-            check_freq=check_freq, save_path=CHECKPOINT_DIR
-        )
-        model = PPO(
-            policy="MlpPolicy",
-            env=env,
-            verbose=2,
-            tensorboard_log=LOG_DIR,
-            learning_rate=0.001, # 0.000001
-            n_steps=64, # 512
-        )
-        model.learn(total_timesteps=steps * 10, callback=callback)  # 1_000_000
+    check_freq = 10_000  # 10_000
+    steps = 100_000  # 1_000_000
+    players = [
+        Player(name="A", function=None, piece_value=1),  # RL model
+        Player(name="B", function=rl_model_highest, piece_value=2),
+    ]
+    env = ConnectFour3DEnv(players)
+    callback = TrainAndLoggingCallback(
+        check_freq=check_freq, save_path=CHECKPOINT_DIR
+    )
+    model = PPO(
+        policy="MlpPolicy",
+        env=env,
+        verbose=2,
+        tensorboard_log=LOG_DIR,
+        learning_rate=0.000001, # 0.000001
+        n_steps=512, # 512
+    )
+    model.learn(total_timesteps=steps, callback=callback) 
 
 
 # %%

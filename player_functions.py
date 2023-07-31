@@ -38,6 +38,7 @@ def rl_model_highest(board: np.array, available_slots: List[int]):
             highest_model = PPO.load(f"./train/{max(models)}")
         else:
             highest_model = None
+        print(f"Model: {max(models)}.zip")
         return highest_model
 
     model = get_highest_model()
@@ -47,4 +48,5 @@ def rl_model_highest(board: np.array, available_slots: List[int]):
             action = place_random(board=board, available_slots=available_slots)
         else:
             action, state = model.predict(switch(board))
+            action = int(action)
     return action
