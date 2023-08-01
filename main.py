@@ -1,4 +1,6 @@
-from connectFour3D import ConnectFour3D, Player
+from connectFour3D import ConnectFour3D
+from tictactoe import TicTacToe
+from player import Player
 from player_functions import *
 
 from profiler import profile
@@ -38,8 +40,11 @@ if __name__ == "__main__":
         Player(name="B", function=None, piece_value=2),
     ]
 
-    connect_four = ConnectFour3D()
-    connect_four.play(players=players, display=True)
+    tic_tac_toe = TicTacToe()
+    tic_tac_toe.play(players=players, display=True)
+
+    # connect_four = ConnectFour3D()
+    # connect_four.play(players=players, display=True)
 
 
     # make_statistics(players, n_plays=100_000)

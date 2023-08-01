@@ -1,6 +1,7 @@
 env\Scripts\activate
 
-python reinforcement_training.py
+python reinforcement_training_tic_tac_toe.py
+python reinforcement_training_connect_four.py
 
 tensorboard --logdir=\logs\PPO_1
 

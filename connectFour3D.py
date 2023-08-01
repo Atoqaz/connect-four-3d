@@ -14,18 +14,9 @@ Display board
 # %%
 import numpy as np
 from typing import List
-from dataclasses import dataclass
 import os
 
-
-@dataclass()
-class Player:
-    name: str  # Unique
-    function: callable
-    piece_value: int = None
-
-    def __repr__(self):
-        return f"Player(Name = {self.name})"
+from player import Player
 
 
 class ConnectFour3D:

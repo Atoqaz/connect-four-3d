@@ -36,9 +36,9 @@ def rl_model_highest(board: np.array, available_slots: List[int]):
             models.append(int(str(p).split("\\")[-1].split(".")[0]))
         if models:
             highest_model = PPO.load(f"./train/{max(models)}")
+            # print(f"Model: {max(models)}.zip")
         else:
             highest_model = None
-        print(f"Model: {max(models)}.zip")
         return highest_model
 
     model = get_highest_model()

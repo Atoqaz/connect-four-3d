@@ -231,6 +231,37 @@ class ConnectFour3DEnv(gym.Env):
         ...
 
 
+class TicTacToeEnv(gym.Env):
+    """Custom Environment that follows gym interface."""
+
+    metadata = {"render.modes": ["human"]}
+
+    def __init__(self, players):
+        super().__init__()
+        self.action_space = Discrete(9)
+        print(f"self.action_space: {type(self.action_space)}")
+        self.observation_space = Box(low=0, high=2, shape=(3,3))  # , dtype=np.uint8
+        self.connect_four = ConnectFour3DRL()
+        self.players = players
+        self.connect_four.start_game()
+
+    def step(self, action) -> Tuple[np.array, int, bool, Dict[str, str]]:
+        observation, reward, done, info = self.connect_four.make_move_step(
+            piece_placement=int(action), players=self.players
+        )
+        return observation, reward, done, info
+
+    def reset(self):
+        self.connect_four.start_game()
+        observation = self.connect_four.board
+        return observation
+
+    def render(self):
+        print(self.connect_four.board)
+
+    def close(self):
+        ...
+
 if __name__ == "__main__":
     check_freq = 10_000  # 10_000
     steps = 100_000  # 1_000_000
