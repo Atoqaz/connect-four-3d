@@ -36,8 +36,9 @@ def make_statistics(players, n_plays):
 
 if __name__ == "__main__":
     players = [
-        Player(name="A", function=rl_model_highest, piece_value=1),
-        Player(name="B", function=None, piece_value=2),
+        # Player(name="A", function=rl_model_highest, piece_value=1),
+        Player(name="A", function=recursive, piece_value=1),
+        Player(name="B", function=None, piece_value=-1),
     ]
 
     tic_tac_toe = TicTacToe()
@@ -45,7 +46,6 @@ if __name__ == "__main__":
 
     # connect_four = ConnectFour3D()
     # connect_four.play(players=players, display=True)
-
 
     # make_statistics(players, n_plays=100_000)
     # measure_time(players, N=162_000)

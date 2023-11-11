@@ -18,45 +18,51 @@ import os
 
 from player import Player
 
+
 class TicTacToe:
     """Players: 2 players with values 1 & 2. 0 is empty slot."""
 
     def __init__(self):
         self.width = 3
-        self.pieces = self.width**2
+        self.n_pieces = self.width**2
         self.board = self._create_board()
 
     def _create_board(self) -> np.array:
         return np.zeros([self.width, self.width], dtype=int)
 
     def _show_board_places(self, available_slots: np.array) -> None:
-        # slots = np.reshape(range(self.pieces), (self.width, self.width))
+        # slots = np.reshape(range(self.n_pieces), (self.width, self.width))
         return np.reshape(
-            [x if x in available_slots else "-" for x in range(self.pieces)],
+            [x if x in available_slots else "-" for x in range(self.n_pieces)],
             (self.width, self.width),
         )
 
-    def get_available_slots(self, board: np.array) -> np.array:
+    @staticmethod
+    def get_available_slots(board: np.array, n_pieces: int) -> np.array:
         """List from 0 to number of pieces (inclusive) of the slots where placement is available"""
-        return [
+        available_slots = [
             int(i)
-            for i, b in zip(range(self.pieces), (board == 0).astype(int).ravel())
+            for i, b in zip(range(n_pieces), (board == 0).astype(int).ravel())
+            # for i, b in zip(range(self.n_pieces), (board == 0).astype(int).ravel())
             if b == 1
         ]
+        return available_slots
 
+    @staticmethod
     def make_move(
-        self, board: np.array, player: Player, piece_placement: int
+        board: np.array, player: Player, piece_placement: int, available_slots: np.array
     ) -> np.array:
-        available_slots = self.get_available_slots(board=board)
         if piece_placement not in available_slots:
             raise ValueError(
                 f"The selected piece placement is not available. Chosen placement: {piece_placement}.\nAvailable: {available_slots}"
             )
 
         location = board.ravel()[piece_placement]
-        if location == 0:
+        if location == 0: # If place available
             board.ravel()[piece_placement] = player.piece_value
             return board
+        else:
+            return None
 
     def _check_identical(self, list: np.array) -> bool:
         return (list[0] != 0) & (list == list[0]).all()
@@ -92,7 +98,9 @@ class TicTacToe:
         while True:  # Game is running
             player = players[turn]
 
-            available_slots = self.get_available_slots(board=self.board)
+            available_slots = self.get_available_slots(
+                board=self.board, n_pieces=self.n_pieces
+            )
             if available_slots:
                 while True:  # Get correct input
                     if player.function == None:
@@ -111,6 +119,7 @@ class TicTacToe:
                         piece_placement = player.function(
                             board=self.board,
                             available_slots=available_slots,
+                            players=players,
                         )
 
                     if piece_placement in available_slots:
@@ -121,7 +130,10 @@ class TicTacToe:
                         print("*" * 50)
 
                 self.board = self.make_move(
-                    board=self.board, player=player, piece_placement=piece_placement
+                    board=self.board,
+                    player=player,
+                    piece_placement=piece_placement,
+                    available_slots=available_slots,
                 )
 
                 if display:
