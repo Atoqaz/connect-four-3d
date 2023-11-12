@@ -138,6 +138,7 @@ def _get_best_move(
         best = _reward_max_min_tic_tac_toe(
             board=board, player_value=player.piece_value
         )  # OBS: assumption for 1, -1 pieces
+        print(f"Reward 1: {best}")
         return best_move, best, scoreboard
 
     for piece_index, piece_placement in enumerate(
@@ -149,10 +150,9 @@ def _get_best_move(
             piece_placement=piece_placement,
             player=player,
         )
-        # print(
-        #     f"depth: {depth}, piece_placement: {piece_placement}, available_slots: {available_slots}, piece_index: {piece_index}, board: \n{board}\nboard2: \n{board2}"
-        # )
-        # if board is None:
+        print(
+            f"depth: {depth}, piece_placement: {piece_placement}, available_slots: {available_slots}, piece_index: {piece_index}, board: \n{board}\nboard2: \n{board2}"
+        )
 
         if depth >= 1:
             turn = (turn + 1) % len(players)
@@ -163,6 +163,7 @@ def _get_best_move(
             best = _reward_max_min_tic_tac_toe(
                 board=board2, player_value=player.piece_value
             )
+            print(f"Reward 2: {best}")
 
         scoreboard[piece_index, :] = (piece_placement, best)
 
@@ -177,5 +178,6 @@ def _get_best_move(
 
 
 def recursive(board: np.array, available_slots: List[int], players: List[Player]):
-    best_move, _, _ = _get_best_move(board=board, depth=6, players=players, turn=0)
+    print("recursive")
+    best_move, _, _ = _get_best_move(board=board, depth=3, players=players, turn=0)
     return best_move
