@@ -64,9 +64,7 @@ def _reward_max_min_tic_tac_toe(board: np.array, player_value: int) -> int:
     diag_2 = np.array([2, 4, 6])  # diagonal top right to bottom left
 
     def _row_count(
-        row: np.array,
-        player_sum: float = 0,
-        opponent_sum: float = 0,
+        row: np.array, player_sum: float = 0, opponent_sum: float = 0, limit: int = 1
     ) -> Tuple[float, float]:
         unique, counts = np.unique(row, return_counts=True)
         player_val, opponent_val = 0, 0
@@ -75,8 +73,10 @@ def _reward_max_min_tic_tac_toe(board: np.array, player_value: int) -> int:
                 player_val = c
             elif u == -player_value:  # Opponent = - player (1, -1) values for them
                 opponent_val = c
-        player_sum += player_val
-        opponent_sum += opponent_val
+        if player_val > limit:
+            player_sum += player_val
+        if opponent_val > limit:
+            opponent_sum += opponent_val
         return player_sum, opponent_sum
 
     player_sum = 0
@@ -138,7 +138,7 @@ def _get_best_move(
         best = _reward_max_min_tic_tac_toe(
             board=board, player_value=player.piece_value
         )  # OBS: assumption for 1, -1 pieces
-        print(f"Reward 1: {best}")
+        # print(f"Reward 1: {best}")
         return best_move, best, scoreboard
 
     for piece_index, piece_placement in enumerate(
@@ -150,9 +150,6 @@ def _get_best_move(
             piece_placement=piece_placement,
             player=player,
         )
-        print(
-            f"depth: {depth}, piece_placement: {piece_placement}, available_slots: {available_slots}, piece_index: {piece_index}, board: \n{board}\nboard2: \n{board2}"
-        )
 
         if depth >= 1:
             turn = (turn + 1) % len(players)
@@ -163,9 +160,13 @@ def _get_best_move(
             best = _reward_max_min_tic_tac_toe(
                 board=board2, player_value=player.piece_value
             )
-            print(f"Reward 2: {best}")
+            # print(
+            #     f"depth: {depth}, piece_placement: {piece_placement}, available_slots: {available_slots}, piece_index: {piece_index}, board: \n{board}\nboard2: \n{board2}"
+            # )
+            # print(f"Reward 2: {best}")
 
         scoreboard[piece_index, :] = (piece_placement, best)
+        # print(f"depth: {depth}, scoreboard: \n{scoreboard}")
 
     best_move = int(scoreboard[np.argmax(scoreboard[:, 1]), 0])
 
@@ -179,5 +180,5 @@ def _get_best_move(
 
 def recursive(board: np.array, available_slots: List[int], players: List[Player]):
     print("recursive")
-    best_move, _, _ = _get_best_move(board=board, depth=3, players=players, turn=0)
+    best_move, _, _ = _get_best_move(board=board, depth=5, players=players, turn=0)
     return best_move
